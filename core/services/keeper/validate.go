@@ -47,6 +47,7 @@ encode_check_upkeep_tx -> check_upkeep_tx -> decode_check_upkeep_tx -> encode_pe
 // expectedPipeline it is basically parsed ExpectedObservationSource value
 var expectedPipeline pipeline.Pipeline
 
+// init uses the current observation source and parses it into the pipeline
 func init() {
 	pp, err := pipeline.Parse(ExpectedObservationSource)
 	if err != nil {
