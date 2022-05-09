@@ -78,13 +78,13 @@ func TestValidatedKeeperSpec(t *testing.T) {
 			name: "invalid job spec",
 			args: args{
 				tomlString: `
-						type            = "keeper"
+						type            = "vrf"
 						schemaVersion   = 3
-						name            = "example keeper spec"
+						name            = "invalid keeper spec"
 						contractAddress = "0x9E40733cC9df84636505f4e6Db28DCa0dC5D1bba"
 						fromAddress     = "0xa8037A20989AFcBC51798de9762b351D63ff462e"
 						evmChainID      = 4
-						externalJobID   =  "123e4567-e89b-12d3-a456-426655440002"
+						externalJobID   = "123e4567-e89b-12d3-a456-426655440002"
 					`,
 			},
 			want:    want{},
