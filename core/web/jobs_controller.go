@@ -3,6 +3,8 @@ package web
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"github.com/smartcontractkit/chainlink/core/services/pipeline"
 	"net/http"
 	"time"
 
@@ -47,8 +49,8 @@ func (jc *JobsController) Index(c *gin.Context, size, page, offset int) {
 		return
 	}
 	var resources []presenters.JobResource
-	for _, job := range jobs {
-		resources = append(resources, *presenters.NewJobResource(job))
+	for _, individualJob := range jobs {
+		resources = append(resources, *presenters.NewJobResource(individualJob))
 	}
 
 	paginatedResponse(c, "jobs", size, page, resources, count, err)
@@ -110,13 +112,13 @@ func (jc *JobsController) Create(c *gin.Context) {
 	case job.OffchainReporting:
 		jb, err = ocr.ValidatedOracleSpecToml(jc.App.GetChains().EVM, request.TOML)
 		if !config.Dev() && !config.FeatureOffchainReporting() {
-			jsonAPIError(c, http.StatusNotImplemented, errors.New("The Offchain Reporting feature is disabled by configuration"))
+			jsonAPIError(c, http.StatusNotImplemented, errors.New("The Off-chain Reporting feature is disabled by configuration"))
 			return
 		}
 	case job.OffchainReporting2:
 		jb, err = validate.ValidatedOracleSpecToml(jc.App.GetConfig(), request.TOML)
 		if !config.Dev() && !config.FeatureOffchainReporting2() {
-			jsonAPIError(c, http.StatusNotImplemented, errors.New("The Offchain Reporting 2 feature is disabled by configuration"))
+			jsonAPIError(c, http.StatusNotImplemented, errors.New("The Off-chain Reporting 2 feature is disabled by configuration"))
 			return
 		}
 	case job.DirectRequest:
@@ -124,7 +126,11 @@ func (jc *JobsController) Create(c *gin.Context) {
 	case job.FluxMonitor:
 		jb, err = fluxmonitorv2.ValidatedFluxMonitorSpec(jc.App.GetConfig(), request.TOML)
 	case job.Keeper:
-		// TODO: configure observation source here in the controller rather than in the spec validation
+		// Parse the observationSource here, because it is constant for all the Keeper jobs.
+		_, err := pipeline.Parse(keeper.ExpectedObservationSource)
+		if err != nil {
+			panic(fmt.Sprintf("failed to parse default observation source: %v", err))
+		}
 		jb, err = keeper.ValidatedKeeperSpec(request.TOML)
 	case job.Cron:
 		jb, err = cron.ValidatedCronSpec(request.TOML)
