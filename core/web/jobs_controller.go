@@ -124,6 +124,7 @@ func (jc *JobsController) Create(c *gin.Context) {
 	case job.FluxMonitor:
 		jb, err = fluxmonitorv2.ValidatedFluxMonitorSpec(jc.App.GetConfig(), request.TOML)
 	case job.Keeper:
+		// TODO: configure observation source here in the controller rather than in the spec validation
 		jb, err = keeper.ValidatedKeeperSpec(request.TOML)
 	case job.Cron:
 		jb, err = cron.ValidatedCronSpec(request.TOML)
