@@ -25,7 +25,6 @@ import (
 	"github.com/smartcontractkit/chainlink/core/internal/testutils"
 	"github.com/smartcontractkit/chainlink/core/services/directrequest"
 	"github.com/smartcontractkit/chainlink/core/services/job"
-	"github.com/smartcontractkit/chainlink/core/services/keeper"
 	"github.com/smartcontractkit/chainlink/core/services/keystore/keys/ethkey"
 	"github.com/smartcontractkit/chainlink/core/services/keystore/keys/p2pkey"
 	"github.com/smartcontractkit/chainlink/core/services/pg"
@@ -181,10 +180,9 @@ func TestJobController_Create_HappyPath(t *testing.T) {
 		{
 			name: "keeper",
 			toml: testspecs.GenerateKeeperSpec(testspecs.KeeperSpecParams{
-				Name:              "example keeper spec",
-				ContractAddress:   "0x9E40733cC9df84636505f4e6Db28DCa0dC5D1bba",
-				FromAddress:       "0xa8037A20989AFcBC51798de9762b351D63ff462e",
-				ObservationSource: keeper.ExpectedObservationSource,
+				Name:            "example keeper spec",
+				ContractAddress: "0x9E40733cC9df84636505f4e6Db28DCa0dC5D1bba",
+				FromAddress:     "0xa8037A20989AFcBC51798de9762b351D63ff462e",
 			}).Toml(),
 			assertion: func(t *testing.T, r *http.Response) {
 				require.Equal(t, http.StatusOK, r.StatusCode)
@@ -394,7 +392,7 @@ func TestJobsController_Index_HappyPath(t *testing.T) {
 	t.Cleanup(cleanup)
 	cltest.AssertServerResponse(t, response, http.StatusOK)
 
-	resources := []presenters.JobResource{}
+	var resources []presenters.JobResource
 	err := web.ParseJSONAPIResponse(cltest.ParseResponseBody(t, response), &resources)
 	assert.NoError(t, err)
 

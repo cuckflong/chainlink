@@ -54,7 +54,6 @@ func TestValidatedKeeperSpec(t *testing.T) {
 			args: args{
 				tomlString: `
 						type            			= "keeper"
-						schemaVersion   			= 3
 						name            			= "example keeper spec"
 						contractAddress 			= "0x9E40733cC9df84636505f4e6Db28DCa0dC5D1bba"
 						fromAddress     			= "0xa8037A20989AFcBC51798de9762b351D63ff462e"
@@ -79,7 +78,6 @@ func TestValidatedKeeperSpec(t *testing.T) {
 			args: args{
 				tomlString: `
 						type            = "vrf"
-						schemaVersion   = 3
 						name            = "invalid keeper spec"
 						contractAddress = "0x9E40733cC9df84636505f4e6Db28DCa0dC5D1bba"
 						fromAddress     = "0xa8037A20989AFcBC51798de9762b351D63ff462e"

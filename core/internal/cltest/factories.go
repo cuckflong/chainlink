@@ -532,7 +532,7 @@ func MustInsertKeeperJob(t *testing.T, db *sqlx.DB, korm keeper.ORM, from ethkey
 	require.NoError(t, err)
 
 	var pipelineSpec pipeline.Spec
-	dds := keeper.ExpectedObservationSource
+	dds := keeper.ObservationSource
 	err = korm.Q().Get(&pipelineSpec, `INSERT INTO pipeline_specs (dot_dag_source,created_at) VALUES ($1,NOW()) RETURNING *`, dds)
 	require.NoError(t, err)
 

@@ -3,8 +3,6 @@ package web
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"github.com/smartcontractkit/chainlink/core/services/pipeline"
 	"net/http"
 	"time"
 
@@ -126,11 +124,6 @@ func (jc *JobsController) Create(c *gin.Context) {
 	case job.FluxMonitor:
 		jb, err = fluxmonitorv2.ValidatedFluxMonitorSpec(jc.App.GetConfig(), request.TOML)
 	case job.Keeper:
-		// Parse the observationSource here, because it is constant for all the Keeper jobs.
-		_, err := pipeline.Parse(keeper.ExpectedObservationSource)
-		if err != nil {
-			panic(fmt.Sprintf("failed to parse default observation source: %v", err))
-		}
 		jb, err = keeper.ValidatedKeeperSpec(request.TOML)
 	case job.Cron:
 		jb, err = cron.ValidatedCronSpec(request.TOML)

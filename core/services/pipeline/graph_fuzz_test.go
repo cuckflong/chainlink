@@ -18,7 +18,7 @@ func FuzzParse(f *testing.F) {
 	f.Add(`ds1 [type=any retries=5];`)
 	f.Add(`ds1 [type=http retries=10 minBackoff="1s" maxBackoff="30m"];`)
 	f.Add(pipeline.DotStr)
-	f.Add(keeper.ExpectedObservationSource)
+	f.Add(keeper.ObservationSource)
 	f.Add(CBORDietEmpty)
 	f.Add(CBORStdString)
 	f.Add(`

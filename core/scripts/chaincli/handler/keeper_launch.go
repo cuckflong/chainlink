@@ -267,7 +267,7 @@ func (k *Keeper) createKeeperJob(client cmd.HTTPClient, registryAddr, nodeAddr s
 			FromAddress:              nodeAddr,
 			EvmChainID:               int(k.cfg.ChainID),
 			MinIncomingConfirmations: 1,
-			ObservationSource:        keeper.ExpectedObservationSource,
+			ObservationSource:        keeper.ObservationSource,
 		}).Toml(),
 	})
 	if err != nil {
