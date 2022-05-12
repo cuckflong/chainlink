@@ -5,9 +5,9 @@ import (
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
-	"github.com/smartcontractkit/chainlink/core/services/pipeline"
-
 	"github.com/smartcontractkit/chainlink/core/services/job"
+	"github.com/smartcontractkit/chainlink/core/services/pipeline"
+	"strings"
 )
 
 const ObservationSource = `
@@ -40,11 +40,11 @@ const ObservationSource = `
     encode_check_upkeep_tx -> check_upkeep_tx -> decode_check_upkeep_tx -> encode_perform_upkeep_tx -> perform_upkeep_tx
 `
 
-// We parse the observationSource only once here, because it is constant for all the Keeper jobs.
+// We parse the ObservationSource only once here, because it is constant for all the Keeper jobs.
 func init() {
 	_, err := pipeline.Parse(ObservationSource)
 	if err != nil {
-		panic(fmt.Sprintf("failed to parse default observation source: %v", err))
+		panic(fmt.Sprintf("Failed to parse default Keeper observation source: %v", err))
 	}
 }
 
@@ -71,6 +71,10 @@ func ValidatedKeeperSpec(tomlString string) (job.Job, error) {
 
 	if j.Type != job.Keeper {
 		return j, errors.Errorf("unsupported type %s", j.Type)
+	}
+
+	if strings.Contains(tomlString, "observationSource") {
+		return j, errors.New("observationSource not required in the toml string")
 	}
 
 	return j, nil

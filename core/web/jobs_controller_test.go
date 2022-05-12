@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/smartcontractkit/chainlink/core/services/keeper"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -183,7 +184,7 @@ func TestJobController_Create_HappyPath(t *testing.T) {
 				Name:              "example keeper spec",
 				ContractAddress:   "0x9E40733cC9df84636505f4e6Db28DCa0dC5D1bba",
 				FromAddress:       "0xa8037A20989AFcBC51798de9762b351D63ff462e",
-				ObservationSource: "",
+				ObservationSource: keeper.ObservationSource,
 			}).Toml(),
 			assertion: func(t *testing.T, r *http.Response) {
 				require.Equal(t, http.StatusOK, r.StatusCode)
