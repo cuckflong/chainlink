@@ -1,10 +1,11 @@
 package keeper
 
 import (
-	"github.com/smartcontractkit/chainlink/core/testdata/testspecs"
-	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
+
+	"github.com/smartcontractkit/chainlink/core/testdata/testspecs"
+	"github.com/stretchr/testify/require"
 )
 
 func TestValidatedKeeperSpec(t *testing.T) {

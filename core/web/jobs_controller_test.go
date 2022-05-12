@@ -6,13 +6,14 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/smartcontractkit/chainlink/core/services/keeper"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/smartcontractkit/chainlink/core/services/keeper"
 
 	"github.com/ethereum/go-ethereum/common"
 	p2ppeer "github.com/libp2p/go-libp2p-core/peer"

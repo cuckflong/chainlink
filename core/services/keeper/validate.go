@@ -2,12 +2,12 @@ package keeper
 
 import (
 	"fmt"
+
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 	"github.com/smartcontractkit/chainlink/core/services/job"
 	"github.com/smartcontractkit/chainlink/core/services/pipeline"
-	"strings"
 )
 
 const ObservationSource = `
@@ -57,10 +57,6 @@ func ValidatedKeeperSpec(tomlString string) (job.Job, error) {
 	// Create a new job with a randomly generated uuid, which can be replaced with the one from tomlString.
 	var j = job.Job{
 		ExternalJobID: uuid.NewV4(),
-	}
-
-	if strings.Contains(tomlString, "observationSource") {
-		return j, errors.New("observationSource not required in the toml string")
 	}
 
 	j.Pipeline = parsedPipeline
