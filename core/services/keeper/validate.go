@@ -40,12 +40,17 @@ const ObservationSource = `
     encode_check_upkeep_tx -> check_upkeep_tx -> decode_check_upkeep_tx -> encode_perform_upkeep_tx -> perform_upkeep_tx
 `
 
+var parsedPipeline pipeline.Pipeline
+
 // We parse the ObservationSource only once here, because it is constant for all the Keeper jobs.
 func init() {
-	_, err := pipeline.Parse(ObservationSource)
+	parsed, err := pipeline.Parse(ObservationSource)
+
 	if err != nil {
 		panic(fmt.Sprintf("Failed to parse default Keeper observation source: %v", err))
 	}
+
+	parsedPipeline = *parsed
 }
 
 func ValidatedKeeperSpec(tomlString string) (job.Job, error) {
@@ -53,6 +58,12 @@ func ValidatedKeeperSpec(tomlString string) (job.Job, error) {
 	var j = job.Job{
 		ExternalJobID: uuid.NewV4(),
 	}
+
+	if strings.Contains(tomlString, "observationSource") {
+		return j, errors.New("observationSource not required in the toml string")
+	}
+
+	j.Pipeline = parsedPipeline
 
 	tree, err := toml.Load(tomlString)
 	if err != nil {
@@ -71,10 +82,6 @@ func ValidatedKeeperSpec(tomlString string) (job.Job, error) {
 
 	if j.Type != job.Keeper {
 		return j, errors.Errorf("unsupported type %s", j.Type)
-	}
-
-	if strings.Contains(tomlString, "observationSource") {
-		return j, errors.New("observationSource not required in the toml string")
 	}
 
 	return j, nil
