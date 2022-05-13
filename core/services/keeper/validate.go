@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
@@ -59,8 +60,6 @@ func ValidatedKeeperSpec(tomlString string) (job.Job, error) {
 		ExternalJobID: uuid.NewV4(),
 	}
 
-	j.Pipeline = parsedPipeline
-
 	tree, err := toml.Load(tomlString)
 	if err != nil {
 		return j, err
@@ -74,11 +73,18 @@ func ValidatedKeeperSpec(tomlString string) (job.Job, error) {
 	if err := tree.Unmarshal(&spec); err != nil {
 		return j, err
 	}
+
 	j.KeeperSpec = &spec
 
 	if j.Type != job.Keeper {
 		return j, errors.Errorf("unsupported type %s", j.Type)
 	}
+
+	if strings.Contains(tomlString, "observationSource") {
+		return j, errors.New("There should be no 'observationSource' parameter included in the toml")
+	}
+
+	j.Pipeline = parsedPipeline
 
 	return j, nil
 }

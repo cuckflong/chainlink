@@ -13,8 +13,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/smartcontractkit/chainlink/core/services/keeper"
-
 	"github.com/ethereum/go-ethereum/common"
 	p2ppeer "github.com/libp2p/go-libp2p-core/peer"
 	"github.com/pelletier/go-toml"
@@ -181,12 +179,12 @@ func TestJobController_Create_HappyPath(t *testing.T) {
 		},
 		{
 			name: "keeper",
-			toml: testspecs.GenerateKeeperSpec(testspecs.KeeperSpecParams{
-				Name:              "example keeper spec",
-				ContractAddress:   "0x9E40733cC9df84636505f4e6Db28DCa0dC5D1bba",
-				FromAddress:       "0xa8037A20989AFcBC51798de9762b351D63ff462e",
-				ObservationSource: keeper.ObservationSource,
-			}).Toml(),
+			toml: `
+				type = "keeper"
+				name = "example keeper spec"
+				contractAddress = "0x9E40733cC9df84636505f4e6Db28DCa0dC5D1bba"
+				fromAddress = "0xa8037A20989AFcBC51798de9762b351D63ff462e"
+			`,
 			assertion: func(t *testing.T, r *http.Response) {
 				require.Equal(t, http.StatusOK, r.StatusCode)
 
