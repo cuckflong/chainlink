@@ -65,7 +65,7 @@ var (
 		FluxMonitor:        true,
 		OffchainReporting:  false, // bootstrap jobs do not require it
 		OffchainReporting2: false, // bootstrap jobs do not require it
-		Keeper:             true,
+		Keeper:             false, // observationSource is injected when the job is validated
 		VRF:                true,
 		Webhook:            true,
 		BlockhashStore:     false,
