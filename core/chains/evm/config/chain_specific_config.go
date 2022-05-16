@@ -343,7 +343,7 @@ func setChainSpecificConfigDefaultSets() {
 	metisMainnet.linkContractAddress = "TODO"
 	metisMainnet.minIncomingConfirmations = 1
 	metisMainnet.minGasPriceWei = *big.NewInt(0) // Metis uses the L2Suggested estimator; we don't want to place any limits on the minimum gas price
-	metisMainnet.minRequiredOutgoingConfirmations = 0
+	metisMainnet.minRequiredOutgoingConfirmations = 1
 	metisMainnet.ocrContractConfirmations = 1
 	//TODO more?
 	metisRinkeby := metisMainnet
