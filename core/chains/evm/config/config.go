@@ -92,7 +92,7 @@ type ChainScopedConfig interface {
 	ChainScopedOnlyConfig
 	Validate() error
 	// Both Configure() and PersistedConfig() should be accessed through ChainSet methods only.
-	Configure(config evmtypes.ChainCfg) error
+	Configure(config evmtypes.ChainCfg)
 	PersistedConfig() evmtypes.ChainCfg
 }
 
@@ -129,7 +129,7 @@ func NewChainScopedConfig(chainID *big.Int, cfg evmtypes.ChainCfg, orm evmtypes.
 		id:            chainID,
 		knownID:       exists,
 		onceMap:       make(map[string]struct{})}
-	_ = css.Configure(cfg)
+	css.Configure(cfg)
 	return &css
 }
 
@@ -140,11 +140,11 @@ func (c *chainScopedConfig) Validate() (err error) {
 	)
 }
 
-func (c *chainScopedConfig) Configure(config evmtypes.ChainCfg) (err error) {
+func (c *chainScopedConfig) Configure(config evmtypes.ChainCfg) {
 	c.persistMu.Lock()
 	defer c.persistMu.Unlock()
 	c.persistedCfg = config
-	return nil
+	return
 }
 
 func (c *chainScopedConfig) PersistedConfig() evmtypes.ChainCfg {
@@ -219,7 +219,6 @@ func (c *chainScopedConfig) validate() (err error) {
 				err = multierr.Combine(err, errors.Errorf("GAS_ESTIMATOR_MODE %q is not allowed with chain type %q - "+
 					"must be %q", gasEst, config.ChainArbitrum, "FixedPrice"))
 			}
-		case config.ChainExChain:
 
 		case config.ChainOptimism:
 			gasEst := c.GasEstimatorMode()
@@ -254,7 +253,7 @@ func (c *chainScopedConfig) logEnvOverrideOnce(name string, envVal interface{}) 
 	if _, ok := c.onceMap[k]; ok {
 		return
 	}
-	c.logger.Warnf("Global ENV var set %s=%v, overriding all other values for %s", envvar.TryName(name), envVal, name)
+	c.logger.Warnf("Global ENV var set %s=%v, overriding all non key-specific values for %s", envvar.TryName(name), envVal, name)
 	c.onceMap[k] = struct{}{}
 }
 
@@ -705,15 +704,12 @@ func (c *chainScopedConfig) GasEstimatorMode() string {
 }
 
 func (c *chainScopedConfig) KeySpecificMaxGasPriceWei(addr gethcommon.Address) *big.Int {
-	val, ok := c.GeneralConfig.GlobalEvmMaxGasPriceWei()
-	if ok {
-		c.logEnvOverrideOnce("EvmMaxGasPriceWei", val)
-		return val
-	}
 	c.persistMu.RLock()
 	keySpecific := c.persistedCfg.KeySpecific[addr.Hex()].EvmMaxGasPriceWei
 	c.persistMu.RUnlock()
-	if keySpecific != nil && !keySpecific.Equal(utils.NewBigI(0)) {
+
+	chainSpecific := utils.NewBig(c.EvmMaxGasPriceWei())
+	if keySpecific != nil && !keySpecific.Equal(utils.NewBigI(0)) && keySpecific.Cmp(chainSpecific) < 0 {
 		c.logKeySpecificOverrideOnce("EvmMaxGasPriceWei", addr, keySpecific)
 		return keySpecific.ToInt()
 	}
