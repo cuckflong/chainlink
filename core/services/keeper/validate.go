@@ -11,7 +11,7 @@ import (
 	"github.com/smartcontractkit/chainlink/core/services/pipeline"
 )
 
-const ObservationSource = `
+const observationSource = `
     encode_check_upkeep_tx   [type=ethabiencode
                               abi="checkUpkeep(uint256 id, address from)"
                               data="{\"id\":$(jobSpec.upkeepID),\"from\":$(jobSpec.fromAddress)}"]
@@ -55,9 +55,9 @@ const ObservationSource = `
 
 var parsedPipeline pipeline.Pipeline
 
-// We parse the ObservationSource only once here, because it is constant for all the Keeper jobs.
+// We parse the observationSource only once here, because it is constant for all the Keeper jobs.
 func init() {
-	parsed, err := pipeline.Parse(ObservationSource)
+	parsed, err := pipeline.Parse(observationSource)
 
 	if err != nil {
 		panic(fmt.Sprintf("Failed to parse default Keeper observation source: %v", err))
@@ -66,6 +66,8 @@ func init() {
 	parsedPipeline = *parsed
 }
 
+// ValidatedKeeperSpec analyses the tomlString passed as parameter and
+// returns a newly-created Job if there are no validation errors in the toml.
 func ValidatedKeeperSpec(tomlString string) (job.Job, error) {
 	// Create a new job with a randomly generated uuid, which can be replaced with the one from tomlString.
 	var j = job.Job{
