@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"context"
 	"fmt"
 	"math/big"
 	"testing"
@@ -62,6 +63,8 @@ func mockRegistry1_2(
 	keeperList []common.Address,
 	upkeepConfig registry1_2.GetUpkeep,
 	timesGetUpkeepMock int,
+	getStateTime int,
+	getActiveUpkeepIDsTime int,
 ) {
 	registryMock := cltest.NewContractMockReceiver(t, ethMock, keeper.Registry1_2ABI, contractAddress)
 
@@ -72,8 +75,16 @@ func mockRegistry1_2(
 		Config:  config,
 		Keepers: keeperList,
 	}
-	registryMock.MockResponse("getState", getState).Once()
-	registryMock.MockResponse("getActiveUpkeepIDs", activeUpkeepIDs).Once()
+	ethMock.On("HeaderByNumber", context.Background(), (*big.Int)(nil)).Return(
+		&types.Header{
+			Number: big.NewInt(10),
+		}, nil)
+	if getStateTime > 0 {
+		registryMock.MockResponse("getState", getState).Times(getStateTime)
+	}
+	if getActiveUpkeepIDsTime > 0 {
+		registryMock.MockResponse("getActiveUpkeepIDs", activeUpkeepIDs).Times(getActiveUpkeepIDsTime)
+	}
 	if timesGetUpkeepMock > 0 {
 		registryMock.MockResponse("getUpkeep", upkeepConfig).Times(timesGetUpkeepMock)
 	}
@@ -92,6 +103,8 @@ func Test_RegistrySynchronizer1_2_Start(t *testing.T) {
 		[]*big.Int{},
 		[]common.Address{fromAddress},
 		upkeepConfig1_2,
+		0,
+		2,
 		0)
 
 	err := synchronizer.Start(testutils.Context(t))
@@ -122,7 +135,9 @@ func Test_RegistrySynchronizer1_2_FullSync(t *testing.T) {
 		[]*big.Int{big.NewInt(3), big.NewInt(69), big.NewInt(420)}, // Upkeep IDs
 		[]common.Address{fromAddress},
 		upkeepConfig,
-		3) // sync all 3
+		3, // sync all 3
+		2,
+		1)
 	synchronizer.ExportedFullSync()
 
 	cltest.AssertCount(t, db, "keeper_registries", 1)
@@ -167,7 +182,9 @@ func Test_RegistrySynchronizer1_2_FullSync(t *testing.T) {
 		[]*big.Int{big.NewInt(69), big.NewInt(420), big.NewInt(2022)}, // Upkeep IDs
 		[]common.Address{fromAddress},
 		upkeepConfig1_2,
-		1) // 1 new upkeep to sync
+		1, // 1 new upkeep to sync
+		2,
+		1)
 	synchronizer.ExportedFullSync()
 
 	cltest.AssertCount(t, db, "keeper_registries", 1)
@@ -191,6 +208,8 @@ func Test_RegistrySynchronizer1_2_ConfigSetLog(t *testing.T) {
 		[]*big.Int{}, // Upkeep IDs
 		[]common.Address{fromAddress},
 		upkeepConfig1_2,
+		0,
+		2,
 		0)
 
 	require.NoError(t, synchronizer.Start(testutils.Context(t)))
@@ -244,6 +263,8 @@ func Test_RegistrySynchronizer1_2_KeepersUpdatedLog(t *testing.T) {
 		[]*big.Int{}, // Upkeep IDs
 		[]common.Address{fromAddress},
 		upkeepConfig1_2,
+		0,
+		2,
 		0)
 
 	require.NoError(t, synchronizer.Start(testutils.Context(t)))
@@ -296,7 +317,9 @@ func Test_RegistrySynchronizer1_2_UpkeepCanceledLog(t *testing.T) {
 		[]*big.Int{big.NewInt(3), big.NewInt(69), big.NewInt(420)}, // Upkeep IDs
 		[]common.Address{fromAddress},
 		upkeepConfig1_2,
-		3)
+		3,
+		2,
+		1)
 
 	require.NoError(t, synchronizer.Start(testutils.Context(t)))
 	defer func() { require.NoError(t, synchronizer.Close()) }()
@@ -336,6 +359,8 @@ func Test_RegistrySynchronizer1_2_UpkeepRegisteredLog(t *testing.T) {
 		[]*big.Int{big.NewInt(3)}, // Upkeep IDs
 		[]common.Address{fromAddress},
 		upkeepConfig1_2,
+		1,
+		2,
 		1)
 
 	require.NoError(t, synchronizer.Start(testutils.Context(t)))
@@ -381,6 +406,8 @@ func Test_RegistrySynchronizer1_2_UpkeepPerformedLog(t *testing.T) {
 		[]*big.Int{big.NewInt(3)}, // Upkeep IDs
 		[]common.Address{fromAddress},
 		upkeepConfig1_2,
+		1,
+		2,
 		1)
 
 	require.NoError(t, synchronizer.Start(testutils.Context(t)))
@@ -437,6 +464,8 @@ func Test_RegistrySynchronizer1_2_UpkeepGasLimitSetLog(t *testing.T) {
 		[]*big.Int{big.NewInt(3)}, // Upkeep IDs
 		[]common.Address{fromAddress},
 		upkeepConfig1_2,
+		1,
+		2,
 		1)
 
 	require.NoError(t, synchronizer.Start(testutils.Context(t)))
@@ -488,6 +517,8 @@ func Test_RegistrySynchronizer1_2_UpkeepReceivedLog(t *testing.T) {
 		[]*big.Int{big.NewInt(3)}, // Upkeep IDs
 		[]common.Address{fromAddress},
 		upkeepConfig1_2,
+		1,
+		2,
 		1)
 
 	require.NoError(t, synchronizer.Start(testutils.Context(t)))
@@ -531,7 +562,9 @@ func Test_RegistrySynchronizer1_2_UpkeepMigratedLog(t *testing.T) {
 		[]*big.Int{big.NewInt(3), big.NewInt(69), big.NewInt(420)}, // Upkeep IDs
 		[]common.Address{fromAddress},
 		upkeepConfig1_2,
-		3)
+		3,
+		2,
+		1)
 
 	require.NoError(t, synchronizer.Start(testutils.Context(t)))
 	defer func() { require.NoError(t, synchronizer.Close()) }()
