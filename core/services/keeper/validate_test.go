@@ -102,7 +102,7 @@ func TestValidatedKeeperSpec(t *testing.T) {
 						fromAddress     = "0xa8037A20989AFcBC51798de9762b351D63ff462e"
 						evmChainID      = 4
 						externalJobID   = "123e4567-e89b-12d3-a456-426655440002"
-						observationSource = "
+						ObservationSource = "
                                                 encode_check_upkeep_tx   [type=ethabiencode abi="checkUpkeep(uint256 id, address from)"
                                                                           data="{\"id\":$(jobSpec.upkeepID),\"from\":$(jobSpec.fromAddress)}"]
                                                 check_upkeep_tx          [type=ethcall
